@@ -70,9 +70,7 @@ async def post_file(request: web.Request):
     is_auth, resp = await check_auth(app, request)
     if not is_auth:
         if resp:
-            return resp(
-                status=401, text="Invalid authorization", body="Invalid authorization"
-            )
+            return resp(status=401, text="Invalid authorization")
         return web.Response(status=401, text="Invalid authorization")
     post_data: Any = await request.post()
     file_data = post_data["file"].file.read()
