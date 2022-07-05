@@ -5,7 +5,7 @@ description = "A ligthweight, fast, easy to use python package that helps you cr
 authors = ["FrostiiWeeb"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.8.10"
 aiohttp = "^3.8.1"
 asyncpg = "^0.25.0"
 
