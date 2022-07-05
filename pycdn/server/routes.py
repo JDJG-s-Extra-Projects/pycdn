@@ -66,7 +66,9 @@ async def get_file(request: web.Request):
     if is_cache:
         logger.info(f"Found in cache: {id}")
         logger.info(f"Displaying image: {id}")
-        return web.Response(body=is_cache)
+        return web.Response(
+            body=is_cache, content_type=mimetypes.guess_type(is_cache)[0]
+        )
     app = request.app
     logger.info(f"Displaying image: {id}")
     data = (await app["pool"].fetchrow("SELECT * from cdn WHERE id = $1", id))["data"]
