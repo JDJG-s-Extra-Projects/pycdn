@@ -21,17 +21,17 @@ class Application:
         self.make = self.make_app
         self.app["auth"] = auth
 
-    async def make_app(self):
+    def make_app(self):
         add_routes(self.app)
         add_tasks(self.app)
         return self.app
 
     def run(self, host: str = "localhost", port: int = 8080):
-        asyncio.create_task(self())
+        self.make_app()
         web.run_app(self.app, host=host, port=port)
 
     async def __call__(self):
-        return await self.make_app()
+        return self.make_app()
 
     async def __aenter__(self):
         return await self.make_app()
