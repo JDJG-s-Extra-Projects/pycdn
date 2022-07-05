@@ -1,14 +1,22 @@
 import asyncio
 from typing import Optional
+from loguru import logger
 from aiohttp import web
 
 from .routes import add_routes
 from .startup import add_tasks
 
 
+@web.middleware
+async def middleware(request: web.Request, handler):
+    resp = await handler(request)
+    logger.debug(f"{request.method} {request.remote}: {request.path} {resp.status}")
+    return resp
+
+
 class Application:
     def __init__(self, dsn: str, auth: Optional[str] = None):
-        self.app = web.Application()
+        self.app = web.Application(middlewares=[middleware])
         self.app["dsn"] = dsn
         self.make = self.make_app
         self.app["auth"] = auth
