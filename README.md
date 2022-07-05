@@ -1,3 +1,3 @@
 # pycdn
 
-A lightweight package to help you make a CDN.
+A lightweight, fast, easy to use python package thats helps you make a CDN.

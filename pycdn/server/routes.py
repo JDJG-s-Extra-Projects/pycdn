@@ -2,7 +2,9 @@ from dataclasses import dataclass
 import secrets
 import string
 from io import BytesIO
+import sys
 from typing import Any
+from loguru import logger
 
 from aiohttp import web
 
@@ -51,14 +53,21 @@ routes = web.RouteTableDef()
 alphabet = string.ascii_lowercase + string.ascii_uppercase + string.digits
 cache: Cache = Cache()
 
+logger.add(
+    sys.stdout, colorize=True, format="<green>{time}</green> <level>{message}</level>"
+)
+
 
 @routes.get("/files/{id}")
 async def get_file(request: web.Request):
     id = request.match_info["id"]
     is_cache = cache.get(id)
     if is_cache:
+        logger.info(f"Found in cache: {id}")
+        logger.info(f"Displaying image: {id}")
         return web.Response(body=is_cache)
     app = request.app
+    logger.info(f"Displaying image: {id}")
     data = (await app["pool"].fetchrow("SELECT * from cdn WHERE id = $1", id))["data"]
     buffer = BytesIO(data)
     return web.Response(body=buffer.getvalue(), content_type="image/jpeg")
@@ -69,12 +78,16 @@ async def post_file(request: web.Request):
     app = request.app
     is_auth, resp = await check_auth(app, request)
     if not is_auth:
+        logger.error("Unauthorized")
         if resp:
             return resp(status=401, text="Invalid authorization")
         return web.Response(status=401, text="Invalid authorization")
     post_data: Any = await request.post()
     file_data = post_data["file"].file.read()
     id = generate_id()
+    logger.info(f"Storing image: {id}")
+    cache.set(id, file_data)
+    logger.info(f"Uploading image: {id}")
     await app["pool"].execute(
         "INSERT INTO cdn(data, id) VALUES ($1, $2)", file_data, id
     )
