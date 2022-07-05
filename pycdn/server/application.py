@@ -26,7 +26,7 @@ class Application:
         add_tasks(self.app)
         return self.app
 
-    def run(self, host: str = "localhost", port: int = 8080):
+    def run(self, host: str = "127.0.0.1", port: int = 5000):
         self._make_app()
         web.run_app(self.app, host=host, port=port)
 
