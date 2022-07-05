@@ -4,6 +4,7 @@ import string
 from io import BytesIO
 import sys
 from typing import Any
+import mimetypes
 from loguru import logger
 
 from aiohttp import web
@@ -70,7 +71,7 @@ async def get_file(request: web.Request):
     logger.info(f"Displaying image: {id}")
     data = (await app["pool"].fetchrow("SELECT * from cdn WHERE id = $1", id))["data"]
     buffer = BytesIO(data)
-    return web.Response(body=buffer.getvalue(), content_type="image/jpeg")
+    return web.Response(body=buffer.getvalue(), content_type=data["mime_type"])
 
 
 @routes.post("/upload")
@@ -84,12 +85,16 @@ async def post_file(request: web.Request):
         return web.Response(status=401, text="Invalid authorization")
     post_data: Any = await request.post()
     file_data = post_data["file"].file.read()
+    file_type = mimetypes.guess_type(post_data["file"].file.name)[0]
     id = generate_id()
     logger.info(f"Storing image: {id}")
     cache.set(id, file_data)
     logger.info(f"Uploading image: {id}")
     await app["pool"].execute(
-        "INSERT INTO cdn(data, id) VALUES ($1, $2)", file_data, id
+        "INSERT INTO cdn(data, id, mime_type) VALUES ($1, $2, $3)",
+        file_data,
+        id,
+        file_type,
     )
     return web.json_response(({"result": "success", "id": id}))
 

@@ -5,7 +5,9 @@ import asyncpg
 
 async def create_pool(app: web.Application):
     app["pool"] = pool = await asyncpg.create_pool(dsn=app["dsn"])
-    await pool.execute("CREATE TABLE IF NOT EXISTS cdn (data BYTEA, id TEXT)")
+    await pool.execute(
+        "CREATE TABLE IF NOT EXISTS cdn (data BYTEA, id TEXT, mime_type TEXT)"
+    )
 
 
 async def dispose_pool(app: web.Application):
