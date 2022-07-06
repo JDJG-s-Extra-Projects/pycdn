@@ -1,7 +1,9 @@
-import asyncio
+from __future__ import annotations
+
 from typing import Optional
-from loguru import logger
+
 from aiohttp import web
+from loguru import logger
 
 from .routes import add_routes
 from .startup import add_tasks
