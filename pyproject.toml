@@ -9,6 +9,7 @@ python = "^3.8.10"
 aiohttp = "^3.8.1"
 asyncpg = "^0.25.0"
 loguru =  "^0.6.0"
+python-magic = "^0.4.27"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
