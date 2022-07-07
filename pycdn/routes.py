@@ -11,6 +11,7 @@ from typing import Any
 from aiohttp import web
 from loguru import logger
 from magic import from_buffer
+from erlpack import pack, unpack
 
 
 @dataclass
@@ -78,10 +79,11 @@ async def get_file(request: web.Request) -> web.Response:
 
     app = request.app
     logger.info(f"Displaying image: {id}")
-    data = (await app["pool"].fetchrow("SELECT * from cdn WHERE id = $1", id))["data"]
+    record = await app["pool"].fetchrow("SELECT * from cdn WHERE id = $1", id)
+    data = record["data"]
     buffer = BytesIO(data)
 
-    return web.Response(body=buffer.getvalue(), content_type=data["mime_type"])
+    return web.Response(body=buffer.getvalue(), content_type=record["mime_type"])
 
 
 @routes.post("/upload")

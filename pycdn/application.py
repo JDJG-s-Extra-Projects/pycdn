@@ -20,8 +20,8 @@ class Application:
     def __init__(self, dsn: str, auth: Optional[str] = None):
         self.app = web.Application(middlewares=[middleware])
         self.app["dsn"] = dsn
-        self.make = self.make_app
         self.app["auth"] = auth
+        self.make = self.make_app
 
     def _make_app(self):
         add_routes(self.app)
